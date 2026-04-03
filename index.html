@@ -1,47 +1,578 @@
-<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #333333; line-height: 1.4; border-collapse: collapse;">
-    <tr>
-        <td style="padding-left: 15px; padding-right: 15px; vertical-align: top;padding-top: 10px;">
-            <img src="https://project-ref6a.vercel.app/as_logo.png" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;">
-        </td>
-        
-        <td style="
-            vertical-align: top;
-            padding-left: 25px;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Редактор подписи — авто-конвертация в base64 при копировании</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 950px;
             width: 100%;
-            /* ПРИМЕНЕНИЕ ФОНОВОГО ИЗОБРАЖЕНИЯ (as_el.png) */
-            background-image: url('https://project-ref6a.vercel.app/as_el.png');
-            background-repeat: no-repeat;
-            background-position: right bottom; /* Позиция: правый нижний угол */
-            background-size: contain; /* Масштабирование: чтобы вписалось */
-            
-            /* Добавляем отступы, чтобы текст не накладывался на фон */
-            padding-right: 20px;
-            padding-bottom: 20px;
-        ">
-            <div style="margin-bottom: 3px;">
-                <span style="font-size: 18px; font-weight: bold; color: #000000;">Имя Фамилия</span>
-            </div>
-            
-            <div style="font-size: 14px; color: #666666; margin-bottom: 12px;">
-                Должность
-            </div>
-            
-            <div style="height: 10px;"></div>
-            
-            <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+
+        .preview-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .signature-preview {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .email-signature {
+            font-family: Arial, sans-serif;
+            color: #333333;
+            line-height: 1.4;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .email-signature table {
+            font-family: Arial, sans-serif;
+            color: #333333;
+            line-height: 1.4;
+            border-collapse: collapse;
+        }
+
+        .edit-form {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .form-row {
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .form-row label {
+            width: 100px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            padding-top: 8px;
+        }
+
+        .form-row input, 
+        .form-row textarea {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            transition: 0.2s;
+        }
+
+        .form-row input:focus, 
+        .form-row textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+
+        .form-row textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-row small {
+            width: 100%;
+            margin-left: 110px;
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .logo-preview-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 110px;
+            margin-top: 5px;
+        }
+
+        .logo-preview-img {
+            max-width: 60px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 4px;
+            background: white;
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .copy-btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .copy-btn:hover {
+            background: #0052a3;
+            transform: scale(1.01);
+        }
+
+        .copy-btn:active {
+            background: #004080;
+            transform: scale(0.98);
+        }
+
+        .copy-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .toast-msg {
+            margin-top: 15px;
+            padding: 10px 16px;
+            background: #e6f7e6;
+            color: #2e7d32;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+        }
+
+        .toast-msg.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            padding-top: 18px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>📧 Редактор подписи 
+        <span class="badge">🔄 При копировании → base64</span>
+    </h2>
+
+    <div class="preview-label">👁‍🗨 Предпросмотр (как увидят получатели):</div>
+    <div class="signature-preview">
+        <div id="copyTarget">
+            <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #333333; line-height: 1.4; border-collapse: collapse;" class="email-signature">
                 <tr>
-                    <td style="padding-bottom: 4px;">
-                        <span style="color: #888888;">тел:</span> 
-                        <a href="tel:+79168175486" style="color: #1a1a1a; text-decoration: none;">+7 (999) 999-99-99</a>
+                    <td style="padding-left: 15px; padding-right: 15px; vertical-align: top; padding-top: 10px;">
+                        <img id="logoImage" class="signature-logo" src="https://project-ref6a.vercel.app/as_logo.jpg" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;" crossorigin="anonymous">
                     </td>
-                </tr>
-                <tr>
-                    <td style="color: #666666;">
-                        <span style="color: #888888;">адрес:</span> 
-                        <span style="color: #333333;">г. Москва, Новинский бульвар, 8.</span>
+                    <td id="bgCell" style="vertical-align: top; padding-left: 25px; width: 100%; background-image: url('https://project-ref6a.vercel.app/as_el.jpg'); background-repeat: no-repeat; background-position: right bottom; background-size: contain; padding-right: 20px; padding-bottom: 20px;">
+                        <div style="margin-bottom: 3px;">
+                            <span id="signatureName" style="font-size: 18px; font-weight: bold; color: #000000;">Имя Фамилия</span>
+                        </div>
+                        <div id="signaturePosition" style="font-size: 14px; color: #666666; margin-bottom: 12px;">
+                            Должность
+                        </div>
+                        <div style="height: 10px;"></div>
+                        <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
+                            <tr>
+                                <td style="padding-bottom: 4px;">
+                                    <span style="color: #888888;">тел:</span> 
+                                    <a id="signaturePhoneLink" href="tel:+79168175486" style="color: #1a1a1a; text-decoration: none;">+7 (999) 999-99-99</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: #666666;">
+                                    <span style="color: #888888;">адрес:</span> 
+                                    <span id="signatureAddress" style="color: #333333;">г. Москва, Новинский бульвар, 8.</span>
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </table>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+
+    <!-- Форма редактирования -->
+    <div class="edit-form">
+        <div class="form-row">
+            <label>👤 Имя и фамилия:</label>
+            <input type="text" id="editName" value="Имя Фамилия" placeholder="Иван Петров">
+        </div>
+
+        <div class="form-row">
+            <label>💼 Должность:</label>
+            <input type="text" id="editPosition" value="Должность" placeholder="Руководитель отдела">
+        </div>
+
+        <div class="form-row">
+            <label>📞 Телефон:</label>
+            <input type="text" id="editPhone" value="+7 (999) 999-99-99" placeholder="+7 (123) 456-78-90">
+        </div>
+
+        <div class="form-row">
+            <label>📍 Адрес:</label>
+            <textarea id="editAddress" rows="2" placeholder="г. Москва, ул. Примерная, д. 1">г. Москва, Новинский бульвар, 8.</textarea>
+        </div>
+
+        <div class="form-row">
+            <label>🖼 Логотип (URL):</label>
+            <input type="text" id="editLogoUrl" value="https://project-ref6a.vercel.app/as_logo.jpg" placeholder="https://...">
+            <div class="logo-preview-row">
+                <span style="font-size: 12px; color: #666;">Предпросмотр:</span>
+                <img id="logoPreview" src="https://project-ref6a.vercel.app/as_logo.jpg" alt="лого" class="logo-preview-img">
+                <button type="button" class="btn-reset" id="resetLogoBtn">↺ Сбросить</button>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>🎨 Фон (URL):</label>
+            <input type="text" id="editBgUrl" value="https://project-ref6a.vercel.app/as_el.jpg" placeholder="https://...">
+            <small>Фоновое изображение в правой нижней части подписи</small>
+            <button type="button" class="btn-reset" id="resetBgBtn" style="margin-left: 110px; margin-top: 8px;">↺ Сбросить фон</button>
+        </div>
+    </div>
+
+    <button class="copy-btn" id="copySignatureBtn">📋 Копировать подпись (с конвертацией в base64)</button>
+    <div id="toastMessage" class="toast-msg">✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)</div>
+    <div class="note">
+        🔄 При нажатии кнопки все изображения автоматически конвертируются в base64 и встраиваются в подпись.<br>
+        ✅ Почтовые сервисы не смогут заблокировать картинки — они будут отображаться всегда.<br>
+        ⚡ После копирования — перейдите в письмо и нажмите Ctrl+V (или Cmd+V).
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Элементы подписи
+        const nameSpan = document.getElementById('signatureName');
+        const positionSpan = document.getElementById('signaturePosition');
+        const phoneLink = document.getElementById('signaturePhoneLink');
+        const addressSpan = document.getElementById('signatureAddress');
+        const logoImg = document.getElementById('logoImage');
+        const bgCell = document.getElementById('bgCell');
+        
+        // Поля ввода
+        const editName = document.getElementById('editName');
+        const editPosition = document.getElementById('editPosition');
+        const editPhone = document.getElementById('editPhone');
+        const editAddress = document.getElementById('editAddress');
+        const editLogoUrl = document.getElementById('editLogoUrl');
+        const editBgUrl = document.getElementById('editBgUrl');
+        
+        // Превью лого
+        const logoPreview = document.getElementById('logoPreview');
+        
+        // Кнопки
+        const copyBtn = document.getElementById('copySignatureBtn');
+        const resetLogoBtn = document.getElementById('resetLogoBtn');
+        const resetBgBtn = document.getElementById('resetBgBtn');
+        const toast = document.getElementById('toastMessage');
+        
+        // Дефолтные значения
+        const defaultLogo = 'https://project-ref6a.vercel.app/as_logo.jpg';
+        const defaultBg = 'https://project-ref6a.vercel.app/as_el.jpg';
+        
+        // Функция обновления предпросмотра (без конвертации, просто меняем URL)
+        function updatePreview() {
+            nameSpan.textContent = editName.value || ' ';
+            positionSpan.textContent = editPosition.value || ' ';
+            
+            const phoneValue = editPhone.value || '+7 (000) 000-00-00';
+            phoneLink.textContent = phoneValue;
+            phoneLink.href = 'tel:' + phoneValue.replace(/[^\d+]/g, '');
+            
+            addressSpan.textContent = editAddress.value || ' ';
+            
+            const logoUrl = editLogoUrl.value.trim();
+            if (logoUrl) {
+                logoImg.src = logoUrl;
+                logoPreview.src = logoUrl;
+            } else {
+                logoImg.src = defaultLogo;
+                logoPreview.src = defaultLogo;
+            }
+            
+            const bgUrl = editBgUrl.value.trim();
+            if (bgUrl) {
+                bgCell.style.backgroundImage = `url('${bgUrl}')`;
+            } else {
+                bgCell.style.backgroundImage = `url('${defaultBg}')`;
+            }
+        }
+        
+        // Конвертация URL в base64
+        function urlToBase64(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous'; // Важно для CORS
+                
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                
+                img.onerror = () => {
+                    reject(new Error(`Не удалось загрузить: ${url}`));
+                };
+                
+                img.src = url;
+            });
+        }
+        
+        // Конвертация фонового изображения (background-image) в base64
+        function bgUrlToBase64(element) {
+            return new Promise((resolve, reject) => {
+                const bgImage = window.getComputedStyle(element).backgroundImage;
+                const match = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
+                
+                if (!match || !match[1]) {
+                    resolve(null);
+                    return;
+                }
+                
+                const url = match[1];
+                
+                // Если уже base64, возвращаем как есть
+                if (url.startsWith('data:')) {
+                    resolve(url);
+                    return;
+                }
+                
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                
+                img.onerror = () => {
+                    reject(new Error(`Не удалось загрузить фон: ${url}`));
+                };
+                
+                img.src = url;
+            });
+        }
+        
+        // Показать уведомление
+        function showMessage(text, isError = false) {
+            toast.textContent = text;
+            toast.classList.remove('error');
+            if (isError) toast.classList.add('error');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Основная функция копирования с конвертацией в base64
+        async function copyWithBase64() {
+            // Блокируем кнопку на время конвертации
+            copyBtn.disabled = true;
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<span class="loading"></span> Конвертирую изображения...';
+            
+            try {
+                // Получаем текущие URL изображений
+                const logoSrc = logoImg.src;
+                const bgUrlMatch = window.getComputedStyle(bgCell).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/);
+                const currentBgUrl = bgUrlMatch ? bgUrlMatch[1] : null;
+                
+                // Конвертируем оба изображения параллельно
+                const [logoBase64, bgBase64] = await Promise.all([
+                    logoSrc && !logoSrc.startsWith('data:') ? urlToBase64(logoSrc) : Promise.resolve(logoSrc),
+                    currentBgUrl && !currentBgUrl.startsWith('data:') ? bgUrlToBase64(bgCell) : Promise.resolve(currentBgUrl)
+                ]);
+                
+                // Создаём клон подписи с base64-изображениями
+                const cloneContainer = document.createElement('div');
+                const originalClone = document.getElementById('copyTarget').cloneNode(true);
+                
+                // Заменяем логотип на base64
+                const cloneLogo = originalClone.querySelector('.signature-logo');
+                if (cloneLogo && logoBase64) {
+                    cloneLogo.src = logoBase64;
+                }
+                
+                // Заменяем фон на base64
+                const cloneBgCell = originalClone.querySelector('#bgCell');
+                if (cloneBgCell && bgBase64) {
+                    cloneBgCell.style.backgroundImage = `url('${bgBase64}')`;
+                }
+                
+                cloneContainer.appendChild(originalClone);
+                const finalHtml = cloneContainer.innerHTML;
+                
+                // Копируем в буфер обмена
+                const blob = new Blob([finalHtml], { type: 'text/html' });
+                
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        [blob.type]: blob,
+                        'text/plain': new Blob([originalClone.innerText], { type: 'text/plain' })
+                    })
+                ]);
+                
+                showMessage('✓ Подпись скопирована! Изображения встроены в base64.', false);
+                
+            } catch (err) {
+                console.error('Ошибка:', err);
+                showMessage('✗ Ошибка загрузки изображений. Проверьте URL и доступность картинок.', true);
+            } finally {
+                copyBtn.disabled = false;
+                copyBtn.innerHTML = originalText;
+            }
+        }
+        
+        // Fallback для старых браузеров
+        function fallbackCopy(htmlContent) {
+            const el = document.createElement('div');
+            el.contentEditable = true;
+            el.style.position = 'fixed';
+            el.style.top = '-9999px';
+            el.style.left = '-9999px';
+            el.innerHTML = htmlContent;
+            document.body.appendChild(el);
+            
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            sel?.removeAllRanges();
+            sel?.addRange(range);
+            
+            const success = document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            if (success) {
+                showMessage('✓ Подпись скопирована (fallback метод)', false);
+            } else {
+                showMessage('✗ Не удалось скопировать', true);
+            }
+        }
+        
+        // Обработчики событий
+        editName.addEventListener('input', updatePreview);
+        editPosition.addEventListener('input', updatePreview);
+        editPhone.addEventListener('input', updatePreview);
+        editAddress.addEventListener('input', updatePreview);
+        editLogoUrl.addEventListener('input', updatePreview);
+        editBgUrl.addEventListener('input', updatePreview);
+        
+        resetLogoBtn.addEventListener('click', () => {
+            editLogoUrl.value = defaultLogo;
+            updatePreview();
+        });
+        
+        resetBgBtn.addEventListener('click', () => {
+            editBgUrl.value = defaultBg;
+            updatePreview();
+        });
+        
+        copyBtn.addEventListener('click', copyWithBase64);
+        
+        // Инициализация
+        updatePreview();
+    })();
+</script>
+</body>
+</html>
