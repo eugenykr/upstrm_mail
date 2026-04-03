@@ -244,36 +244,35 @@
 </head>
 <body>
 <div class="container">
-    <h2>📧 Редактор подписи 
-        <span class="badge">🔄 При копировании → base64</span>
+    <h2>Редактор подписи 
     </h2>
 
-    <div class="preview-label">👁‍🗨 Предпросмотр (как увидят получатели):</div>
+    <div class="preview-label">Предпросмотр</div>
     <div class="signature-preview">
         <div id="copyTarget">
             <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #333333; line-height: 1.4; border-collapse: collapse;" class="email-signature">
                 <tr>
                     <td style="padding-left: 15px; padding-right: 15px; vertical-align: top; padding-top: 10px;">
-                        <img id="logoImage" class="signature-logo" src="https://project-ref6a.vercel.app/as_logo.jpg" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;" crossorigin="anonymous">
+                        <img id="logoImage" class="signature-logo" src="https://project-ref6a.vercel.app/as_logo.png" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;" crossorigin="anonymous">
                     </td>
-                    <td id="bgCell" style="vertical-align: top; padding-left: 25px; width: 100%; background-image: url('https://project-ref6a.vercel.app/as_el.jpg'); background-repeat: no-repeat; background-position: right bottom; background-size: contain; padding-right: 20px; padding-bottom: 20px;">
+                    <td id="bgCell" style="vertical-align: top; padding-left: 25px; width: 100%; background-image: url('https://project-ref6a.vercel.app/as_el.png'); background-repeat: no-repeat; background-position: right bottom; background-size: 70%; padding-right: 20px; padding-bottom: 20px;">
                         <div style="margin-bottom: 3px;">
                             <span id="signatureName" style="font-size: 18px; font-weight: bold; color: #000000;">Имя Фамилия</span>
                         </div>
                         <div id="signaturePosition" style="font-size: 14px; color: #666666; margin-bottom: 12px;">
                             Должность
                         </div>
-                        <div style="height: 10px;"></div>
+                        <div style="height: 17px;"></div>
                         <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
                             <tr>
                                 <td style="padding-bottom: 4px;">
-                                    <span style="color: #888888;">тел:</span> 
+                                    <span style="color: #888888;">Тел:</span> 
                                     <a id="signaturePhoneLink" href="tel:+79168175486" style="color: #1a1a1a; text-decoration: none;">+7 (999) 999-99-99</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="color: #666666;">
-                                    <span style="color: #888888;">адрес:</span> 
+                                    <span style="color: #888888;">Адрес:</span> 
                                     <span id="signatureAddress" style="color: #333333;">г. Москва, Новинский бульвар, 8.</span>
                                 </td>
                             </tr>
@@ -287,50 +286,46 @@
     <!-- Форма редактирования -->
     <div class="edit-form">
         <div class="form-row">
-            <label>👤 Имя и фамилия:</label>
+            <label>Имя и фамилия:</label>
             <input type="text" id="editName" value="Имя Фамилия" placeholder="Иван Петров">
         </div>
 
         <div class="form-row">
-            <label>💼 Должность:</label>
+            <label>Должность:</label>
             <input type="text" id="editPosition" value="Должность" placeholder="Руководитель отдела">
         </div>
 
         <div class="form-row">
-            <label>📞 Телефон:</label>
+            <label>Телефон:</label>
             <input type="text" id="editPhone" value="+7 (999) 999-99-99" placeholder="+7 (123) 456-78-90">
         </div>
 
         <div class="form-row">
-            <label>📍 Адрес:</label>
+            <label>Адрес:</label>
             <textarea id="editAddress" rows="2" placeholder="г. Москва, ул. Примерная, д. 1">г. Москва, Новинский бульвар, 8.</textarea>
         </div>
 
         <div class="form-row">
-            <label>🖼 Логотип (URL):</label>
-            <input type="text" id="editLogoUrl" value="https://project-ref6a.vercel.app/as_logo.jpg" placeholder="https://...">
+            <label>Логотип (URL):</label>
+            <input type="text" id="editLogoUrl" value="https://project-ref6a.vercel.app/as_logo.png" placeholder="https://...">
             <div class="logo-preview-row">
                 <span style="font-size: 12px; color: #666;">Предпросмотр:</span>
-                <img id="logoPreview" src="https://project-ref6a.vercel.app/as_logo.jpg" alt="лого" class="logo-preview-img">
+                <img id="logoPreview" src="https://project-ref6a.vercel.app/as_logo.png" alt="лого" class="logo-preview-img">
                 <button type="button" class="btn-reset" id="resetLogoBtn">↺ Сбросить</button>
             </div>
         </div>
 
         <div class="form-row">
-            <label>🎨 Фон (URL):</label>
-            <input type="text" id="editBgUrl" value="https://project-ref6a.vercel.app/as_el.jpg" placeholder="https://...">
+            <label>Фон (URL):</label>
+            <input type="text" id="editBgUrl" value="https://project-ref6a.vercel.app/as_el.png" placeholder="https://...">
             <small>Фоновое изображение в правой нижней части подписи</small>
             <button type="button" class="btn-reset" id="resetBgBtn" style="margin-left: 110px; margin-top: 8px;">↺ Сбросить фон</button>
         </div>
     </div>
 
-    <button class="copy-btn" id="copySignatureBtn">📋 Копировать подпись (с конвертацией в base64)</button>
     <div id="toastMessage" class="toast-msg">✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)</div>
-    <div class="note">
-        🔄 При нажатии кнопки все изображения автоматически конвертируются в base64 и встраиваются в подпись.<br>
-        ✅ Почтовые сервисы не смогут заблокировать картинки — они будут отображаться всегда.<br>
-        ⚡ После копирования — перейдите в письмо и нажмите Ctrl+V (или Cmd+V).
-    </div>
+    <br>
+    <button class="copy-btn" id="copySignatureBtn">Копировать подпись</button>
 </div>
 
 <script>
@@ -361,8 +356,8 @@
         const toast = document.getElementById('toastMessage');
         
         // Дефолтные значения
-        const defaultLogo = 'https://project-ref6a.vercel.app/as_logo.jpg';
-        const defaultBg = 'https://project-ref6a.vercel.app/as_el.jpg';
+        const defaultLogo = 'https://project-ref6a.vercel.app/as_logo.png';
+        const defaultBg = 'https://project-ref6a.vercel.app/as_el.png';
         
         // Функция обновления предпросмотра (без конвертации, просто меняем URL)
         function updatePreview() {
@@ -513,7 +508,7 @@
                     })
                 ]);
                 
-                showMessage('✓ Подпись скопирована! Изображения встроены в base64.', false);
+                showMessage('✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
                 
             } catch (err) {
                 console.error('Ошибка:', err);
