@@ -268,9 +268,9 @@
             <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #333333; line-height: 1.4; border-collapse: collapse;" class="email-signature">
                 <tr>
                     <td style="padding-left: 15px; padding-right: 15px; vertical-align: top; padding-top: 10px;">
-                        <img id="logoImage" class="signature-logo" src="https://project-ref6a.vercel.app/as_logo.png" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;" crossorigin="anonymous">
+                        <img id="logoImage" class="signature-logo" src="https://thumb.cloud.mail.ru/thumb/xw1/as_logo.png" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;">
                     </td>
-                    <td id="bgCell" style="vertical-align: top; padding-left: 25px; width: 100%; background-image: url('https://project-ref6a.vercel.app/as_el.png'); background-repeat: no-repeat; background-position: right bottom; background-size: 70%; padding-right: 20px; padding-bottom: 20px;">
+                    <td id="bgCell" style="vertical-align: top; padding-left: 25px; width: 100%; background-image: url('https://thumb.cloud.mail.ru/weblink/thumb/xw1/wxwj/JgKH3uWVt'); background-repeat: no-repeat; background-position: right bottom; background-size: 70%; padding-right: 20px; padding-bottom: 20px;">
                         <div style="margin-bottom: 3px;">
                             <span id="signatureName" style="font-size: 18px; font-weight: bold; color: #000000;">Имя Фамилия</span>
                         </div>
@@ -322,17 +322,17 @@
 
         <div class="form-row">
             <label>Логотип (URL):</label>
-            <input type="text" id="editLogoUrl" value="https://project-ref6a.vercel.app/as_logo.png" placeholder="https://...">
+            <input type="text" id="editLogoUrl" value="https://thumb.cloud.mail.ru/thumb/xw1/as_logo.png" placeholder="https://...">
             <div class="logo-preview-row">
                 <span style="font-size: 12px; color: #666;">Предпросмотр:</span>
-                <img id="logoPreview" src="https://project-ref6a.vercel.app/as_logo.png" alt="лого" class="logo-preview-img">
+                <img id="logoPreview" src="https://thumb.cloud.mail.ru/thumb/xw1/as_logo.png" alt="лого" class="logo-preview-img">
                 <button type="button" class="btn-reset" id="resetLogoBtn">↺ Сбросить</button>
             </div>
         </div>
 
         <div class="form-row">
             <label>Фон (URL):</label>
-            <input type="text" id="editBgUrl" value="https://project-ref6a.vercel.app/as_el.png" placeholder="https://...">
+            <input type="text" id="editBgUrl" value="https://thumb.cloud.mail.ru/weblink/thumb/xw1/wxwj/JgKH3uWVt" placeholder="https://...">
             <small>Фоновое изображение в правой нижней части подписи</small>
             <button type="button" class="btn-reset" id="resetBgBtn" style="margin-left: 110px; margin-top: 8px;">↺ Сбросить фон</button>
         </div>
@@ -341,8 +341,8 @@
     <div id="toastMessage" class="toast-msg">✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)</div>
     <br>
     <div class="button-group">
-        <button class="copy-btn" id="copySignatureBtn">Копировать подпись</button>
-        <button class="copy-btn copy-btn-secondary" id="copySignatureUrlBtn">Копировать подпись (альтернативный вариант, если ограничена длина подписи)</button>
+        <button class="copy-btn" id="copySignatureBtn">Копировать подпись (с base64)</button>
+        <button class="copy-btn copy-btn-secondary" id="copySignatureUrlBtn">Копировать подпись (со ссылками mail.ru, без base64)</button>
     </div>
 </div>
 
@@ -375,10 +375,10 @@
         const toast = document.getElementById('toastMessage');
         
         // Дефолтные значения
-        const defaultLogo = 'https://project-ref6a.vercel.app/as_logo.png';
-        const defaultBg = 'https://project-ref6a.vercel.app/as_el.png';
+        const defaultLogo = 'https://thumb.cloud.mail.ru/thumb/xw1/as_logo.png';
+        const defaultBg = 'https://thumb.cloud.mail.ru/weblink/thumb/xw1/wxwj/JgKH3uWVt';
         
-        // Функция обновления предпросмотра (без конвертации, просто меняем URL)
+        // Функция обновления предпросмотра
         function updatePreview() {
             nameSpan.textContent = editName.value || ' ';
             positionSpan.textContent = editPosition.value || ' ';
@@ -406,65 +406,74 @@
             }
         }
         
-        // Конвертация URL в base64
-        function urlToBase64(url) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'Anonymous';
+        // Конвертация URL в base64 через fetch (обходит CORS для изображений, которые можно скачать)
+        async function urlToBase64(url) {
+            // Если уже base64, возвращаем как есть
+            if (url.startsWith('data:')) {
+                return url;
+            }
+            
+            try {
+                // Пробуем загрузить через fetch с режимом 'no-cors'
+                // Для mail.ru это не сработает напрямую, поэтому используем прокси
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
                 
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL('image/png'));
-                };
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 
-                img.onerror = () => {
-                    reject(new Error(`Не удалось загрузить: ${url}`));
-                };
+                const blob = await response.blob();
+                return await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (error) {
+                console.warn(`Прокси не сработал для ${url}, пробуем прямой доступ через canvas`);
                 
-                img.src = url;
-            });
+                // Fallback: пробуем через canvas (может не сработать из-за CORS)
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    // Не ставим crossorigin, чтобы хотя бы показать изображение
+                    // Но canvas всё равно заблокирует чтение
+                    
+                    img.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            resolve(canvas.toDataURL('image/png'));
+                        } catch (e) {
+                            reject(new Error(`CORS error: невозможно конвертировать ${url}`));
+                        }
+                    };
+                    
+                    img.onerror = () => reject(new Error(`Не удалось загрузить: ${url}`));
+                    img.src = url;
+                });
+            }
         }
         
-        // Конвертация фонового изображения (background-image) в base64
-        function bgUrlToBase64(element) {
-            return new Promise((resolve, reject) => {
-                const bgImage = window.getComputedStyle(element).backgroundImage;
-                const match = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
-                
-                if (!match || !match[1]) {
-                    resolve(null);
-                    return;
-                }
-                
-                const url = match[1];
-                
-                if (url.startsWith('data:')) {
-                    resolve(url);
-                    return;
-                }
-                
-                const img = new Image();
-                img.crossOrigin = 'Anonymous';
-                
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL('image/png'));
-                };
-                
-                img.onerror = () => {
-                    reject(new Error(`Не удалось загрузить фон: ${url}`));
-                };
-                
-                img.src = url;
-            });
+        // Конвертация фонового изображения в base64
+        async function bgUrlToBase64(element) {
+            const bgImage = window.getComputedStyle(element).backgroundImage;
+            const match = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
+            
+            if (!match || !match[1]) {
+                return null;
+            }
+            
+            const url = match[1];
+            
+            if (url.startsWith('data:')) {
+                return url;
+            }
+            
+            return await urlToBase64(url);
         }
         
         // Показать уведомление
@@ -503,7 +512,7 @@
                 showMessage('✓ Подпись со ссылками скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
             } catch (err) {
                 console.error('Ошибка:', err);
-                fallbackCopy(document.getElementById('copyTarget').cloneNode(true).innerHTML, 'copyWithUrls');
+                fallbackCopy(document.getElementById('copyTarget').cloneNode(true).innerHTML);
             }
         }
         
@@ -518,21 +527,28 @@
                 const bgUrlMatch = window.getComputedStyle(bgCell).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/);
                 const currentBgUrl = bgUrlMatch ? bgUrlMatch[1] : null;
                 
-                const [logoBase64, bgBase64] = await Promise.all([
+                const results = await Promise.allSettled([
                     logoSrc && !logoSrc.startsWith('data:') ? urlToBase64(logoSrc) : Promise.resolve(logoSrc),
                     currentBgUrl && !currentBgUrl.startsWith('data:') ? bgUrlToBase64(bgCell) : Promise.resolve(currentBgUrl)
                 ]);
+                
+                const logoBase64 = results[0].status === 'fulfilled' ? results[0].value : logoSrc;
+                const bgBase64 = results[1].status === 'fulfilled' ? results[1].value : currentBgUrl;
+                
+                if (results[0].status === 'rejected' || results[1].status === 'rejected') {
+                    showMessage('⚠️ Часть изображений не сконвертирована, но подпись скопирована со ссылками', false);
+                }
                 
                 const cloneContainer = document.createElement('div');
                 const originalClone = document.getElementById('copyTarget').cloneNode(true);
                 
                 const cloneLogo = originalClone.querySelector('.signature-logo');
-                if (cloneLogo && logoBase64) {
+                if (cloneLogo && logoBase64 && logoBase64.startsWith('data:')) {
                     cloneLogo.src = logoBase64;
                 }
                 
                 const cloneBgCell = originalClone.querySelector('#bgCell');
-                if (cloneBgCell && bgBase64) {
+                if (cloneBgCell && bgBase64 && bgBase64.startsWith('data:')) {
                     cloneBgCell.style.backgroundImage = `url('${bgBase64}')`;
                 }
                 
@@ -541,11 +557,11 @@
                 const plainText = originalClone.innerText;
                 
                 await copyHtmlToClipboard(finalHtml, plainText);
-                showMessage('✓ Подпись с base64 скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
+                showMessage('✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
                 
             } catch (err) {
                 console.error('Ошибка:', err);
-                showMessage('✗ Ошибка загрузки изображений. Проверьте URL и доступность картинок.', true);
+                showMessage('✗ Ошибка при копировании. Используйте второй вариант.', true);
             } finally {
                 copyBtn.disabled = false;
                 copyBtn.innerHTML = originalText;
@@ -553,7 +569,7 @@
         }
         
         // Fallback для старых браузеров
-        function fallbackCopy(htmlContent, source = 'unknown') {
+        function fallbackCopy(htmlContent) {
             const el = document.createElement('div');
             el.contentEditable = true;
             el.style.position = 'fixed';
