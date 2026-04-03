@@ -185,6 +185,21 @@
             transform: none;
         }
 
+        .copy-btn-secondary {
+            background: #6c757d;
+            margin-top: 12px;
+        }
+
+        .copy-btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .toast-msg {
             margin-top: 15px;
             padding: 10px 16px;
@@ -325,7 +340,10 @@
 
     <div id="toastMessage" class="toast-msg">✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)</div>
     <br>
-    <button class="copy-btn" id="copySignatureBtn">Копировать подпись</button>
+    <div class="button-group">
+        <button class="copy-btn" id="copySignatureBtn">Копировать подпись</button>
+        <button class="copy-btn copy-btn-secondary" id="copySignatureUrlBtn">Копировать подпись (альтернативный вариант, если ограничена длина подписи)</button>
+    </div>
 </div>
 
 <script>
@@ -351,6 +369,7 @@
         
         // Кнопки
         const copyBtn = document.getElementById('copySignatureBtn');
+        const copyUrlBtn = document.getElementById('copySignatureUrlBtn');
         const resetLogoBtn = document.getElementById('resetLogoBtn');
         const resetBgBtn = document.getElementById('resetBgBtn');
         const toast = document.getElementById('toastMessage');
@@ -391,7 +410,7 @@
         function urlToBase64(url) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-                img.crossOrigin = 'Anonymous'; // Важно для CORS
+                img.crossOrigin = 'Anonymous';
                 
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
@@ -423,7 +442,6 @@
                 
                 const url = match[1];
                 
-                // Если уже base64, возвращаем как есть
                 if (url.startsWith('data:')) {
                     resolve(url);
                     return;
@@ -460,36 +478,59 @@
             }, 3000);
         }
         
+        // Функция копирования HTML в буфер обмена
+        async function copyHtmlToClipboard(htmlContent, plainText) {
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    [blob.type]: blob,
+                    'text/plain': new Blob([plainText], { type: 'text/plain' })
+                })
+            ]);
+        }
+        
+        // Копирование без base64 (со ссылками)
+        async function copyWithUrls() {
+            try {
+                const cloneContainer = document.createElement('div');
+                const originalClone = document.getElementById('copyTarget').cloneNode(true);
+                cloneContainer.appendChild(originalClone);
+                const finalHtml = cloneContainer.innerHTML;
+                const plainText = originalClone.innerText;
+                
+                await copyHtmlToClipboard(finalHtml, plainText);
+                showMessage('✓ Подпись со ссылками скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
+            } catch (err) {
+                console.error('Ошибка:', err);
+                fallbackCopy(document.getElementById('copyTarget').cloneNode(true).innerHTML, 'copyWithUrls');
+            }
+        }
+        
         // Основная функция копирования с конвертацией в base64
         async function copyWithBase64() {
-            // Блокируем кнопку на время конвертации
             copyBtn.disabled = true;
             const originalText = copyBtn.innerHTML;
             copyBtn.innerHTML = '<span class="loading"></span> Конвертирую изображения...';
             
             try {
-                // Получаем текущие URL изображений
                 const logoSrc = logoImg.src;
                 const bgUrlMatch = window.getComputedStyle(bgCell).backgroundImage.match(/url\(["']?([^"')]+)["']?\)/);
                 const currentBgUrl = bgUrlMatch ? bgUrlMatch[1] : null;
                 
-                // Конвертируем оба изображения параллельно
                 const [logoBase64, bgBase64] = await Promise.all([
                     logoSrc && !logoSrc.startsWith('data:') ? urlToBase64(logoSrc) : Promise.resolve(logoSrc),
                     currentBgUrl && !currentBgUrl.startsWith('data:') ? bgUrlToBase64(bgCell) : Promise.resolve(currentBgUrl)
                 ]);
                 
-                // Создаём клон подписи с base64-изображениями
                 const cloneContainer = document.createElement('div');
                 const originalClone = document.getElementById('copyTarget').cloneNode(true);
                 
-                // Заменяем логотип на base64
                 const cloneLogo = originalClone.querySelector('.signature-logo');
                 if (cloneLogo && logoBase64) {
                     cloneLogo.src = logoBase64;
                 }
                 
-                // Заменяем фон на base64
                 const cloneBgCell = originalClone.querySelector('#bgCell');
                 if (cloneBgCell && bgBase64) {
                     cloneBgCell.style.backgroundImage = `url('${bgBase64}')`;
@@ -497,18 +538,10 @@
                 
                 cloneContainer.appendChild(originalClone);
                 const finalHtml = cloneContainer.innerHTML;
+                const plainText = originalClone.innerText;
                 
-                // Копируем в буфер обмена
-                const blob = new Blob([finalHtml], { type: 'text/html' });
-                
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        [blob.type]: blob,
-                        'text/plain': new Blob([originalClone.innerText], { type: 'text/plain' })
-                    })
-                ]);
-                
-                showMessage('✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
+                await copyHtmlToClipboard(finalHtml, plainText);
+                showMessage('✓ Подпись с base64 скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
                 
             } catch (err) {
                 console.error('Ошибка:', err);
@@ -520,7 +553,7 @@
         }
         
         // Fallback для старых браузеров
-        function fallbackCopy(htmlContent) {
+        function fallbackCopy(htmlContent, source = 'unknown') {
             const el = document.createElement('div');
             el.contentEditable = true;
             el.style.position = 'fixed';
@@ -564,6 +597,7 @@
         });
         
         copyBtn.addEventListener('click', copyWithBase64);
+        copyUrlBtn.addEventListener('click', copyWithUrls);
         
         // Инициализация
         updatePreview();
