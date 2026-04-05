@@ -341,8 +341,8 @@
     <div id="toastMessage" class="toast-msg">✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)</div>
     <br>
     <div class="button-group">
-        <button class="copy-btn" id="copySignatureBtn">Копировать подпись (с base64)</button>
-        <button class="copy-btn copy-btn-secondary" id="copySignatureUrlBtn">Копировать подпись (со ссылками для mail.ru, без base64)</button>
+        <!-- <button class="copy-btn copy-btn-secondary" id="copySignatureBtn">Копировать подпись (с base64)</button> -->
+        <button class="copy-btn copy-btn-secondary" id="copySignatureUrlBtn">Копировать подпись для mail.ru</button>
     </div>
 </div>
 
@@ -509,7 +509,7 @@
                 const plainText = originalClone.innerText;
                 
                 await copyHtmlToClipboard(finalHtml, plainText);
-                showMessage('✓ Подпись со ссылками скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
+                showMessage('✓ Подпись со скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)', false);
             } catch (err) {
                 console.error('Ошибка:', err);
                 fallbackCopy(document.getElementById('copyTarget').cloneNode(true).innerHTML);
