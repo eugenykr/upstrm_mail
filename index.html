@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 950px;
+            max-width: 645px;
             width: 100%;
             background: white;
             border-radius: 16px;
@@ -263,40 +263,38 @@
     </h2>
 
     <div class="preview-label">Предпросмотр</div>
-    <div class="signature-preview">
-        <div id="copyTarget">
-            <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #333333; line-height: 1.4; border-collapse: collapse;" class="email-signature">
-                <tr>
-                    <td style="padding-left: 15px; padding-right: 15px; vertical-align: top; padding-top: 10px;">
-                        <img id="logoImage" class="signature-logo" src="https://thumb.cloud.mail.ru/weblink/thumb/xw1/HRzV/fp28KoiG5" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;">
-                    </td>
-                    <td id="bgCell" style="vertical-align: top; padding-left: 25px; width: 100%; background-image: url('https://thumb.cloud.mail.ru/weblink/thumb/xw1/wxwj/JgKH3uWVt'); background-repeat: no-repeat; background-position: right bottom; background-size: min(70%, 300px); padding-right: 20px; padding-bottom: 20px;">
-                        <div style="margin-bottom: 3px;">
-                            <span id="signatureName" style="font-size: 18px; font-weight: bold; color: #000000;">Имя Фамилия</span>
-                        </div>
-                        <div id="signaturePosition" style="font-size: 14px; color: #666666; margin-bottom: 12px;">
-                            Должность
-                        </div>
-                        <div style="height: 17px;"></div>
-                        <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
-                            <tr>
-                                <td style="padding-bottom: 4px;">
-                                    <span style="color: #888888;">Тел:</span> 
-                                    <a id="signaturePhoneLink" href="tel:+79168175486" style="color: #1a1a1a; text-decoration: none;">+7 (999) 999-99-99</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666;">
-                                    <span style="color: #888888;">Адрес:</span> 
-                                    <span id="signatureAddress" style="color: #333333;">г. Москва, Новинский бульвар, 8</span>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
+        <div class="signature-preview">
+                <div id="copyTarget">
+                    <table cellpadding="0" cellspacing="0" border="0" style="width: 540px; min-width: 540px; max-width: 540px; font-family: Arial, sans-serif; color: #333333; line-height: 1.4; border-collapse: collapse;" class="email-signature">
+                        <tbody><tr>
+                            <td style="padding-left: 15px; padding-right: 15px; vertical-align: top; padding-top: 10px;">
+                                <img id="logoImage" class="signature-logo" src="https://thumb.cloud.mail.ru/weblink/thumb/xw1/HRzV/fp28KoiG5" alt="АПСТРИМ" width="130" style="display: block; width: 130px; height: auto;">
+                            </td>
+                            <td id="bgCell" style="vertical-align: top; padding-left: 25px; width: 100%; background-image: url('https://thumb.cloud.mail.ru/weblink/thumb/xw1/wxwj/JgKH3uWVt'); background-repeat: no-repeat; background-position: right bottom; background-size: 195px; padding-right: 20px; padding-bottom: 20px;">
+                                <div style="margin-bottom: 3px;">
+                                    <span id="signatureName" style="font-size: 18px; font-weight: bold; color: #000000;">Имя Фамилия</span>
+                                </div>
+                                <div id="signaturePosition" style="font-size: 14px; color: #666666; margin-bottom: 12px;">Должность</div>
+                                <div style="height: 17px;"></div>
+                                <table cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
+                                    <tbody><tr>
+                                        <td style="padding-bottom: 4px;">
+                                            <span style="color: #888888;">Тел:</span> 
+                                            <a id="signaturePhoneLink" href="tel:+79999999999" style="color: #1a1a1a; text-decoration: none;">+7 (999) 999-99-99</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="color: #666666;">
+                                            <span style="color: #888888;">Адрес:</span> 
+                                            <span id="signatureAddress" style="color: #333333;">г. Москва, Новинский бульвар, 8.</span>
+                                        </td>
+                                    </tr>
+                                </tbody></table>
+                            </td>
+                        </tr>
+                    </tbody></table>
+                </div>
+            </div>
 
     <!-- Форма редактирования -->
     <div class="edit-form">
@@ -323,7 +321,7 @@
         <div class="form-row">
             <label>Логотип (URL):</label>
             <input type="text" id="editLogoUrl" value="https://thumb.cloud.mail.ru/weblink/thumb/xw1/HRzV/fp28KoiG5" placeholder="https://...">
-            <div class="logo-preview-row">
+            <div class="logo-preview-row" style="display: none;">
                 <span style="font-size: 12px; color: #666;">Предпросмотр:</span>
                 <img id="logoPreview" src="https://thumb.cloud.mail.ru/weblink/thumb/xw1/HRzV/fp28KoiG5" alt="лого" class="logo-preview-img">
                 <button type="button" class="btn-reset" id="resetLogoBtn">↺ Сбросить</button>
@@ -333,17 +331,15 @@
         <div class="form-row">
             <label>Фон (URL):</label>
             <input type="text" id="editBgUrl" value="https://thumb.cloud.mail.ru/weblink/thumb/xw1/wxwj/JgKH3uWVt" placeholder="https://...">
-            <small>Фоновое изображение в правой нижней части подписи</small>
-            <button type="button" class="btn-reset" id="resetBgBtn" style="margin-left: 110px; margin-top: 8px;">↺ Сбросить фон</button>
+            <button type="button" class="btn-reset" id="resetBgBtn" style="display: none; margin-left: 110px; margin-top: 8px;">↺ Сбросить фон</button>
         </div>
     </div>
 
-    <div id="toastMessage" class="toast-msg">✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)</div>
-    <br>
     <div class="button-group">
         <!-- <button class="copy-btn copy-btn-secondary" id="copySignatureBtn">Копировать подпись (с base64)</button> -->
         <button class="copy-btn" id="copySignatureUrlBtn">Копировать подпись для mail.ru</button>
     </div>
+        <div id="toastMessage" class="toast-msg">✓ Подпись скопирована! Вставьте в письмо (Ctrl+V / Cmd+V)</div>
 </div>
 
 <script>
